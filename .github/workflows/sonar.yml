@@ -33,6 +33,15 @@ jobs:
           #command to scan files
           trivy fs .
 
+      - name: Docker build and push
+        run: |
+          docker build --build-arg TMDB_V3_API_KEY=${{ secrets.TMDB_API_KEY }} -t netflix .
+          docker tag netflix nerdusan/netflix:latest
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker push nerdusan/netflix:latest
+        env:
+          DOCKER_CLI_ACI: 1
+
       # If you wish to fail your job when the Quality Gate is red, uncomment the
       # following lines. This would typically be used to fail a deployment.
       # - uses: sonarsource/sonarqube-quality-gate-action@master
