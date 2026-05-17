@@ -42,6 +42,25 @@ jobs:
         env:
           DOCKER_CLI_ACI: 1
 
+          
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    runs-on: aws-netflix
+    steps:
+      - name: Pull the docker image
+        run: docker pull nerdusan/netflix:latest
+
+      - name: Trivy image scan
+        run: trivy image nerdusan/netflix:latest
+
+      - name: Run the container netflix
+        run: |
+          # Stop and remove existing container if it exists to avoid port conflicts
+          docker stop netflix || true
+          docker rm netflix || true
+          docker run -d --name netflix -p 8081:80 nerdusan/netflix:latest
+
       # If you wish to fail your job when the Quality Gate is red, uncomment the
       # following lines. This would typically be used to fail a deployment.
       # - uses: sonarsource/sonarqube-quality-gate-action@master
